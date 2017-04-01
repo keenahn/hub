@@ -65,7 +65,6 @@ func (client *Client) PullRequest(project *Project, id string) (pr *PullRequest,
 
 	pr = &PullRequest{}
 	err = res.Unmarshal(pr)
-
 	return
 }
 
@@ -91,13 +90,15 @@ func (client *Client) PullRequestPatch(project *Project, id string) (patch io.Re
 }
 
 type PullRequest struct {
-	ApiUrl    	    string           `json:"url"`
-	Number    	    int              `json:"number"`
-	HtmlUrl   	    string           `json:"html_url"`
-	Title     	    string           `json:"title"`
-	MaintainerCanModify bool             `json:"maintainer_can_modify"`
-	Head      	    *PullRequestSpec `json:"head"`
-	Base      	    *PullRequestSpec `json:"base"`
+	Additions int `json:"additions"`
+	ApiUrl string `json:"url"`
+	Base *PullRequestSpec `json:"base"`
+	Deletions int `json:"deletions"`
+	Head *PullRequestSpec `json:"head"`
+	HtmlUrl string `json:"html_url"`
+	MaintainerCanModify bool `json:"maintainer_can_modify"`
+	Number int `json:"number"`
+	Title string `json:"title"`
 }
 
 type PullRequestSpec struct {

@@ -250,6 +250,12 @@ func listIssues(cmd *Command, args *Args) {
 			}
 
 			ui.Printf(formatIssue(issue, flagIssueFormat, colorize))
+			// if issue.PullRequest != nil {
+			// 	pullRequest, err := gh.PullRequest(project, fmt.Sprintf("%d", issue.Number))
+			// 	if err == nil {
+			// 		ui.Printf(" +%d -%d\n", pullRequest.Additions, pullRequest.Deletions)
+			// 	}
+			// }
 		}
 	}
 
