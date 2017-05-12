@@ -1,3 +1,4 @@
+
 package github
 
 import (
@@ -92,13 +93,22 @@ func (client *Client) PullRequestPatch(project *Project, id string) (patch io.Re
 type PullRequest struct {
 	Additions int `json:"additions"`
 	ApiUrl string `json:"url"`
+	Assignees   []User       `json:"assignees"`
 	Base *PullRequestSpec `json:"base"`
+	Body        string       `json:"body"`
+	Comments    int          `json:"comments"`
+	CreatedAt   time.Time    `json:"created_at"`
 	Deletions int `json:"deletions"`
 	Head *PullRequestSpec `json:"head"`
 	HtmlUrl string `json:"html_url"`
+	Labels      []IssueLabel `json:"labels"`
 	MaintainerCanModify bool `json:"maintainer_can_modify"`
+	Milestone   *Milestone   `json:"milestone"`
 	Number int `json:"number"`
+	State       string       `json:"state"`
 	Title string `json:"title"`
+	UpdatedAt   time.Time    `json:"updated_at"`
+	User        *User        `json:"user"`
 }
 
 type PullRequestSpec struct {
@@ -465,6 +475,44 @@ type User struct {
 type Milestone struct {
 	Number int    `json:"number"`
 	Title  string `json:"title"`
+}
+
+func (client *Client) FetchPRs(project *Project, filterParams map[string]interface{}) (issues []PullRequest, err error) {
+	api, err := client.simpleApi()
+	if err != nil {
+		return
+	}
+
+	path := fmt.Sprintf("repos/%s/%s/pulls?per_page=100", project.Owner, project.Name)
+	if filterParams != nil {
+		query := url.Values{}
+		for key, value := range filterParams {
+			switch v := value.(type) {
+			case string:
+				query.Add(key, v)
+			}
+		}
+		path += "&" + query.Encode()
+	}
+
+	issues = []PullRequest{}
+	var res *simpleResponse
+
+	for path != "" {
+		res, err = api.Get(path)
+		if err = checkStatus(200, "fetching issues", res, err); err != nil {
+			return
+		}
+		path = res.Link("next")
+
+		issuesPage := []PullRequest{}
+		if err = res.Unmarshal(&issuesPage); err != nil {
+			return
+		}
+		issues = append(issues, issuesPage...)
+	}
+
+	return
 }
 
 func (client *Client) FetchIssues(project *Project, filterParams map[string]interface{}) (issues []Issue, err error) {

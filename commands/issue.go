@@ -233,7 +233,7 @@ func listIssues(cmd *Command, args *Args) {
 			}
 		}
 
-		issues, err := gh.FetchIssues(project, filters)
+		issues, err := gh.FetchPRs(project, filters)
 		utils.Check(err)
 
 		maxNumWidth := 0
@@ -245,9 +245,9 @@ func listIssues(cmd *Command, args *Args) {
 
 		colorize := ui.IsTerminal(os.Stdout)
 		for _, issue := range issues {
-			if !flagIssueIncludePulls && issue.PullRequest != nil {
-				continue
-			}
+			// if !flagIssueIncludePulls && issue.PullRequest != nil {
+			// 	continue
+			// }
 
 			ui.Printf(formatIssue(issue, flagIssueFormat, colorize))
 			// if issue.PullRequest != nil {
@@ -262,7 +262,7 @@ func listIssues(cmd *Command, args *Args) {
 	args.NoForward()
 }
 
-func formatIssue(issue github.Issue, format string, colorize bool) string {
+func formatIssue(issue github.PullRequest, format string, colorize bool) string {
 	var stateColorSwitch string
 	if colorize {
 		issueColor := 32
@@ -329,6 +329,7 @@ func formatIssue(issue github.Issue, format string, colorize bool) string {
 		"I":  fmt.Sprintf("%d", issue.Number),
 		"i":  fmt.Sprintf("#%d", issue.Number),
 		"U":  issue.HtmlUrl,
+		"B":  issue.Head.Ref,
 		"S":  issue.State,
 		"sC": stateColorSwitch,
 		"t":  issue.Title,
